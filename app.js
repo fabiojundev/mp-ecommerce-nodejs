@@ -11,6 +11,7 @@ require('dotenv').config();
 
 mercadopago.configure({
     access_token: process.env.MP_ACCESS_TOKEN,
+    integrator_id: process.env.MP_INTEGRATOR_ID
 });
 
 var port = process.env.PORT || 3000
@@ -36,16 +37,15 @@ app.get('/detail', function (req, res) {
 
 
 app.post('/checkout', function (req, res) {
-    console.log("checkout", req);
 
     let preference = {
         notification_url : appUrl + "/ipn",
         external_reference : "fabiojundev@gmail.com",
         auto_return : 'approved',
         back_urls : {
-            success : appUrl + '/callback?status=success',
-            pending : appUrl + '/callback?status=pending',
-            failure : appUrl + '/callback??status=failure',
+            success : appUrl + '/success',
+            pending : appUrl + '/pending',
+            failure : appUrl + '/failure',
         },
         payer : {
             name : 'Lalo',
@@ -78,12 +78,6 @@ app.post('/checkout', function (req, res) {
 
     mercadopago.preferences.create(preference)
         .then(function (response) {
-            // global.id = response.body.id;
-            console.log("response", {
-                init_point : response.body.init_point,
-                preference_id : response.body.id,
-                mp_public_key: process.env.MP_PUBLIC_KEY,
-            });
             res.render('checkout', {
                 init_point : response.body.init_point,
                 preference_id : response.body.id,
@@ -95,6 +89,29 @@ app.post('/checkout', function (req, res) {
         });
 });
 
+app.get('/success', function (req, res) {
+    return res.render('success', {
+        payment_type : req.query.payment_type,
+        external_reference : req.query.external_reference,
+        collection_id : req.query.collection_id,
+    });
+});
+
+app.get('/pending', function (req, res) {
+    return res.render('pending', {
+        payment_type : req.query.payment_type,
+        external_reference : req.query.external_reference,
+        collection_id : req.query.collection_id,
+    });
+});
+
+app.get('/failure', function (req, res) {
+    return res.render('failure', {
+        payment_type : req.query.payment_type,
+        external_reference : req.query.external_reference,
+        collection_id : req.query.collection_id,
+    });
+});
 
 app.post('/ipn', function (req, res) {
     console.log('IPN', req.body);
