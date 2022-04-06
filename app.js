@@ -1,13 +1,12 @@
 var express = require('express');
 var exphbs = require('express-handlebars');
+require('dotenv').config();
+
 const nocache = require('nocache');
 const bodyParser = require('body-parser');
-
 var mercadopago = require('mercadopago');
-const app_url = process.env.APP_URL;
 
-require('dotenv').config();
-// console.log(process.env);
+const app_url = process.env.APP_URL;
 
 mercadopago.configure({
     access_token: process.env.MP_ACCESS_TOKEN,
@@ -41,7 +40,7 @@ app.post('/checkout', function (req, res) {
 
     let preference = {
         notification_url: app_url + "/ipn",
-        external_reference: "fabiojundev@gmail.com",
+        external_reference: process.env.MP_EXTERNAL_REFERENCE,
         auto_return: 'approved',
         back_urls: {
             success: app_url + '/success',
@@ -65,7 +64,6 @@ app.post('/checkout', function (req, res) {
         payment_methods: {
             installments: 6,
             excluded_payment_methods: [{ id: "amex" }],
-            excluded_payment_types: [{ id: "atm" }],
         },
         items: [{
             id: 1234,
@@ -79,6 +77,7 @@ app.post('/checkout', function (req, res) {
 
     mercadopago.preferences.create(preference)
         .then(function (response) {
+            // console.log(preference);
             res.render('checkout', {
                 init_point: response.body.init_point,
                 preference_id: response.body.id,
