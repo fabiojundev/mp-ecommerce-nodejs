@@ -18,7 +18,8 @@ var port = process.env.PORT || 3000
 
 var app = express();
 app.use(nocache());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
