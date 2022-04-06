@@ -4,7 +4,7 @@ const nocache = require('nocache');
 const bodyParser = require('body-parser');
 
 var mercadopago = require('mercadopago');
-const appUrl = 'https://fabiojundev-mp-commerce-nodejs.appUrl.com'
+const app_url = process.env.APP_URL;
 
 require('dotenv').config();
 // console.log(process.env);
@@ -39,13 +39,13 @@ app.get('/detail', function (req, res) {
 app.post('/checkout', function (req, res) {
 
     let preference = {
-        notification_url : appUrl + "/ipn",
+        notification_url : app_url + "/ipn",
         external_reference : "fabiojundev@gmail.com",
         auto_return : 'approved',
         back_urls : {
-            success : appUrl + '/success',
-            pending : appUrl + '/pending',
-            failure : appUrl + '/failure',
+            success : app_url + '/success',
+            pending : app_url + '/pending',
+            failure : app_url + '/failure',
         },
         payer : {
             name : 'Lalo',
